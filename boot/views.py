@@ -15,9 +15,11 @@ def render_to_pdf(template_src, context_dict={}):
     html = template.render(context_dict)
     result = BytesIO()
     pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
-    if not pdf.err:
-        return HttpResponse(result.getvalue(), content_type='application/pdf')
-    return None
+    return (
+        None
+        if pdf.err
+        else HttpResponse(result.getvalue(), content_type='application/pdf')
+    )
 
 
 data = {
@@ -46,7 +48,7 @@ class DownloadPDF(View):
         pdf = render_to_pdf('pdf_template.html', data)
 
         response = HttpResponse(pdf, content_type='application/pdf')
-        filename = "Invoice_%s.pdf" % ("12341231")
+        filename = 'Invoice_12341231.pdf'
         content = "attachment; filename='%s'" % (filename)
         response['Content-Disposition'] = content
         return response
